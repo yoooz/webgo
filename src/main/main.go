@@ -8,13 +8,7 @@ import (
 func main() {
 	engine := gin.Default()
 	engine.Static("/static", "./static")
-	ua := ""
 	
-	// ミドルウェア
-	engine.Use(func(c *gin.Context) {
-		ua = c.GetHeader("User-Agent")
-		c.Next()
-	})
 	// html のディレクトリを指定
 	engine.LoadHTMLGlob("templates/*")
 	engine.GET("/index", func(c *gin.Context) {
@@ -23,12 +17,24 @@ func main() {
 			"message": "hello gin",
 		})
 	})
+
+	ping(engine)
+
+	engine.Run(":3000")
+	
+}
+
+func ping(engine *gin.Engine) {
+	ua := ""
+	// ミドルウェア
+	engine.Use(func(c *gin.Context) {
+		ua = c.GetHeader("User-Agent")
+		c.Next()
+	})
 	engine.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message" : "ping",
 			"User-Agent": ua,
 		})
 	})
-	engine.Run(":3000")
-	
 }
