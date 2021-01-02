@@ -7,9 +7,9 @@ new Vue({
         // 商品情報
         products: [],
         // 品名
-        productName: '',
+        bookTitle: '',
         // メモ
-        productMemo: '',
+        bookContent: '',
         // 商品情報の状態
         current: -1,
         // 商品情報の状態一覧
@@ -32,14 +32,15 @@ new Vue({
         },
         // 表示対象の商品情報を返却する
         computedProducts() {
-          return this.products.filter(function (el) {
-            var option = this.current < 0 ? true : this.current === el.state
-            return option
-          }, this)
+            return this.products
+          //return this.products.filter(function (el) {
+            //var option = this.current < 0 ? true : this.current === el.state
+            //return option
+          //}, this)
         },
         // 入力チェック
         validate() {
-            var isEnteredProductName = 0 < this.productName.length
+            var isEnteredProductName = 0 < this.bookTitle.length
             this.isEntered = isEnteredProductName
             return isEnteredProductName
         }
@@ -54,12 +55,12 @@ new Vue({
     methods: {
         // 全ての商品情報を取得する
         doFetchAllProducts() {
-            axios.get('/fetchAllProducts')
+            axios.get('/book/v1/list')
             .then(response => {
                 if (response.status != 200) {
                     throw new Error('レスポンスエラー')
                 } else {
-                    var resultProducts = response.data
+                    var resultProducts = response.data.data
 
                     // サーバから取得した商品情報をdataに設定する
                     this.products = resultProducts
@@ -88,15 +89,15 @@ new Vue({
             })
         },
         // 商品情報を登録する
-        doAddProduct() {
+        doAddBook() {
             // サーバへ送信するパラメータ
             const params = new URLSearchParams();
-            params.append('productName', this.productName)
-            params.append('productMemo', this.productMemo)
+            params.append('title', this.bookTitle)
+            params.append('content', this.bookContent)
 
-            axios.post('/addProduct', params)
+            axios.post('/book/v1/add', params)
             .then(response => {
-                if (response.status != 200) {
+                if (response.status != 201) {
                     throw new Error('レスポンスエラー')
                 } else {
                     // 商品情報を取得する
@@ -125,14 +126,14 @@ new Vue({
             })
         },
         // 商品情報を削除する
-        doDeleteProduct(product) {
+        doDeleteBook(book) {
             // サーバへ送信するパラメータ
-            const params = new URLSearchParams();
-            params.append('productID', product.id)
+            //const params = new URLSearchParams();
+            //params.append('id', book.id)
 
-            axios.post('/deleteProduct', params)
+            axios.delete('/book/v1/delete?id=' + book.id, null)
             .then(response => {
-                if (response.status != 200) {
+                if (response.status != 201) {
                     throw new Error('レスポンスエラー')
                 } else {
                     // 商品情報を取得する
@@ -143,8 +144,8 @@ new Vue({
         // 入力値を初期化する
         initInputValue() {
             this.current = -1
-            this.productName = ''
-            this.productMemo = ''
+            this.bookTitle = ''
+            this.bookContent = ''
         }
     }
 })
